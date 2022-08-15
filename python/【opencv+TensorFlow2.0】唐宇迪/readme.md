@@ -187,14 +187,229 @@ plt.imshow(res)
 ```
 
 ## P9 图像阈值 07:52
+`ret, dst = cv2.threshold(src, thresh, maxval, type)`
+- src： 输入图，只能输入单通道图像，通常来说为灰度图
+- dst： 输出图
+- thresh： 阈值
+- maxval： 当像素值超过了阈值（或者小于阈值，根据type来决定），所赋予的值
+- type：二值化操作的类型，包含以下5种类型： cv2.THRESH_BINARY； cv2.THRESH_BINARY_INV； cv2.THRESH_TRUNC； cv2.THRESH_TOZERO；cv2.THRESH_TOZERO_INV
+  - cv2.THRESH_BINARY 超过阈值部分取maxval（最大值），否则取0
+  - cv2.THRESH_BINARY_INV THRESH_BINARY的反转
+  - cv2.THRESH_TRUNC 大于阈值部分设为阈值，否则不变
+  - cv2.THRESH_TOZERO 大于阈值部分不改变，否则设为0
+  - cv2.THRESH_TOZERO_INV THRESH_TOZERO的反转
+
+```python
+img = cv2.imread('cat.jpg')
+img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+
+ret, thresh1 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
+ret, thresh2 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY_INV)
+ret, thresh3 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_TRUNC)
+ret, thresh4 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_TOZERO)
+ret, thresh5 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_TOZERO_INV)
+
+titles = ['Original Image', 'BINARY', 'BINARY_INV', 'TRUNC', 'TOZERO', 'TOZERO_INV']
+images = [img, thresh1, thresh2, thresh3, thresh4, thresh5]
+
+for i in range(6):
+    plt.subplot(2, 3, i + 1), plt.imshow(images[i], 'gray')
+    plt.title(titles[i])
+    plt.xticks([]), plt.yticks([])
+plt.show()
+```
+
 ## P10 1-图像平滑处理 07:55
+```python
+img = cv2.imread('lenaNoise.png')
+
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# 均值滤波
+# 简单的平均卷积操作
+blur = cv2.blur(img, (3, 3))
+
+cv2.imshow('blur', blur)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# 方框滤波
+# 基本和均值一样，可以选择归一化
+box = cv2.boxFilter(img,-1,(3,3), normalize=True)  
+
+cv2.imshow('box', box)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# 方框滤波
+# 基本和均值一样，可以选择归一化,容易越界,越界时值为 255
+box = cv2.boxFilter(img,-1,(3,3), normalize=False)  
+
+cv2.imshow('box', box)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
 ## P11 2-高斯与中值滤波 06:15
+```python
+# 高斯滤波
+# 高斯模糊的卷积核里的数值是满足高斯分布，相当于更重视中间的
+aussian = cv2.GaussianBlur(img, (5, 5), 1)  
+
+cv2.imshow('aussian', aussian)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# 中值滤波
+# 相当于用中值代替
+median = cv2.medianBlur(img, 5)  # 中值滤波
+
+cv2.imshow('median', median)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# 拼接图片展示
+res = np.hstack((blur,aussian,median))
+#print (res)
+cv2.imshow('median vs average', res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 ## P12 1-腐蚀操作 06:50
+```python
+# 去掉图片中的毛刺
+img = cv2.imread('dige.png')
+
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+kernel = np.ones((3,3),np.uint8) 
+erosion = cv2.erode(img,kernel,iterations = 1)
+
+cv2.imshow('erosion', erosion)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# 饼图缩小
+pie = cv2.imread('pie.png')
+
+cv2.imshow('pie', pie)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+kernel = np.ones((30,30),np.uint8) 
+erosion_1 = cv2.erode(pie,kernel,iterations = 1)
+erosion_2 = cv2.erode(pie,kernel,iterations = 2)
+erosion_3 = cv2.erode(pie,kernel,iterations = 3)
+res = np.hstack((erosion_1,erosion_2,erosion_3))
+cv2.imshow('res', res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 ## P13 2-膨胀操作 03:06
+```python
+img = cv2.imread('dige.png')
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# ---
+kernel = np.ones((3,3),np.uint8) 
+dige_erosion = cv2.erode(img,kernel,iterations = 1)
+
+cv2.imshow('erosion', erosion)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# ---
+kernel = np.ones((3,3),np.uint8) 
+dige_dilate = cv2.dilate(dige_erosion,kernel,iterations = 1)
+
+cv2.imshow('dilate', dige_dilate)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# ---
+pie = cv2.imread('pie.png')
+
+kernel = np.ones((30,30),np.uint8) 
+dilate_1 = cv2.dilate(pie,kernel,iterations = 1)
+dilate_2 = cv2.dilate(pie,kernel,iterations = 2)
+dilate_3 = cv2.dilate(pie,kernel,iterations = 3)
+res = np.hstack((dilate_1,dilate_2,dilate_3))
+cv2.imshow('res', res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 ## P14 3-开运算与闭运算 02:56
+```python
+# 开：先腐蚀，再膨胀
+img = cv2.imread('dige.png')
+
+kernel = np.ones((5,5),np.uint8) 
+opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+
+cv2.imshow('opening', opening)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# 闭：先膨胀，再腐蚀
+img = cv2.imread('dige.png')
+
+kernel = np.ones((5,5),np.uint8) 
+closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+
+cv2.imshow('closing', closing)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 ## P15 4-梯度计算 02:45
+```python
+# 梯度=膨胀图像-腐蚀图像
+pie = cv2.imread('pie.png')
+kernel = np.ones((7,7),np.uint8) 
+dilate = cv2.dilate(pie,kernel,iterations = 5)
+erosion = cv2.erode(pie,kernel,iterations = 5)
+
+res = np.hstack((dilate,erosion))
+
+cv2.imshow('res', res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# ---
+gradient = cv2.morphologyEx(pie, cv2.MORPH_GRADIENT, kernel)
+
+cv2.imshow('gradient', gradient)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
 ## P16 5-礼帽与黑帽 03:22
+礼帽 = 原始输入-开运算结果
+黑帽 = 闭运算-原始输入
+```python
+#礼帽
+img = cv2.imread('dige.png')
+tophat = cv2.morphologyEx(img, cv2.MORPH_TOPHAT, kernel)
+cv2.imshow('tophat', tophat)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#黑帽
+img = cv2.imread('dige.png')
+blackhat  = cv2.morphologyEx(img,cv2.MORPH_BLACKHAT, kernel)
+cv2.imshow('blackhat ', blackhat )
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
 ## P17 1-Sobel算子 09:34
+https://www.bilibili.com/video/BV1234y1j7D1?p=17
+
 ## P18 2-梯度计算方法 08:33
 ## P19 3-scharr与lapkacian算子 06:42
 ## P20 1-Canny边缘检测流程 05:39
