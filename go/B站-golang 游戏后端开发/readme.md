@@ -234,6 +234,84 @@ func UseAnimal[T Animal](a T) {
 ```
 
 ## 第四讲 go 中的 channel 19:24
+分类：
+- 有缓冲、无缓冲
+- 只读、只写、可读可写
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var w2 sync.WaitGroup
+
+func main() {
+	w2.Add(2)
+	ChDemo()
+	ChDemo2()
+	w2.Wait()
+	demo3()
+}
+
+func demo3() {
+	var c1 = make(chan int)
+	var c2 = make(chan int)
+	//var c1 = make(chan int, 1)
+	//var c2 = make(chan int, 1)
+	go demo3SUb(c1, c2)
+	c1 <- 1
+	fmt.Println(<-c2)
+	close(c1)
+	close(c2)
+}
+
+//只写 channel
+func demo3SUb(in <-chan int, out chan<- int) {
+	for v := range in {
+		out <- v + 1
+	}
+}
+
+var ch2 = make(chan int)    //无缓冲
+var ch3 = make(chan int, 5) //有缓冲
+var w sync.WaitGroup
+
+func ChDemo() {
+	w.Add(1)
+	c := ChDemoSub()
+	go func() {
+		w.Wait()
+		fmt.Println(<-c)
+		close(c)
+		w2.Done()
+	}()
+}
+
+func ChDemoSub() chan int {
+	var ch1 chan int
+	ch1 = make(chan int, 2) //有缓冲
+	ch1 <- 9
+	w.Done()
+	return ch1
+}
+
+func ChDemo2() {
+	ch3 <- 7
+	go ChDemo2SUb()
+}
+
+func ChDemo2SUb() {
+	val := <-ch3
+	fmt.Println(val)
+	close(ch3)
+	w2.Done()
+}
+```
+
+
 ## 第五讲 开始写游戏框架 18:59
 ## 第六讲 网络传输层逻辑 part 1 48:23
 ## 第七讲 网络传输层逻辑 part 2 16:05
