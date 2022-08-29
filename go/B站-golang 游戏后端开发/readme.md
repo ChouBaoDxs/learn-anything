@@ -9,7 +9,7 @@ categories:
 - Go
 ---
 
-:::warning
+:::tip
 视频名称：golang 游戏后端开发  
 视频地址：https://www.bilibili.com/video/BV1KB4y1i7yQ  
 作者：[拉托mu](https://space.bilibili.com/93811554)  
@@ -18,7 +18,7 @@ categories:
 - 练习：https://github.com/phuhao00/practical  
 - 游戏框架：https://github.com/phuhao00/greatestworks  
 
-我的评价：★★★★☆  
+我的评价：★★★☆☆  
 :::
 
 <!-- more -->
@@ -129,8 +129,111 @@ func Log() {
 }
 ```
 
-## 第三讲 11:17
-## 第四讲 19:24
+## 第三讲 go 中的 interface 11:17
+```go
+package main
+
+import "fmt"
+
+type Animal interface {
+	Eat(interface{})
+	Name() string
+}
+
+type AnimalCategory int
+
+const (
+	AnimalCategory1 AnimalCategory = iota + 1
+	AnimalCategory2
+)
+
+type Base struct {
+	Nick string `json:"nick"`
+	Age  int    `json:"age"`
+}
+
+func (b *Base) Eat(i interface{}) {
+	fmt.Println(" not clear ")
+}
+
+func (b *Base) Name() string {
+	return ""
+}
+
+type Undefined struct {
+	Base
+}
+
+type Pig struct {
+	Nick string `json:"nick"`
+	Age  int    `json:"age"`
+}
+
+func (p *Pig) Eat(i interface{}) {
+	fmt.Println("cookie")
+}
+
+func (p *Pig) Name() string {
+	return "peiqi"
+}
+
+type Dog struct {
+	Nick string `json:"nick"`
+	Age  int    `json:"age"`
+}
+
+func (d *Dog) Eat(i interface{}) {
+	fmt.Printf("nick is:%v \n", d.Nick)
+}
+
+func (d *Dog) Name() string {
+	return d.Nick
+}
+
+func main() {
+    p := &Dog{
+		Nick: "tiaotiao",
+		Age: 0,
+	}
+	fmt.Println(p)
+	fmt.Println(p.Name())
+
+	animal1 := getAnimal(AnimalCategory1)
+	animal2 := getAnimal(AnimalCategory2)
+	animal3 := getAnimal(AnimalCategory(7))
+	UseAnimal(animal1)
+	UseAnimal(animal2)
+	UseAnimal(animal3)
+}
+
+func getAnimal(category AnimalCategory) Animal {
+	switch category {
+	case AnimalCategory1:
+		return &Dog{
+			Nick: "tiaotiao",
+			Age:  0,
+		}
+	case AnimalCategory2:
+		return &Pig{
+			Nick: "tiaotiao",
+			Age:  0,
+		}
+	default:
+	}
+	return &Undefined{Base{
+		Nick: "Base",
+		Age:  0,
+	}}
+
+}
+
+func UseAnimal[T Animal](a T) {
+	a.Eat("suibian")
+	a.Name()
+}
+```
+
+## 第四讲 go 中的 channel 19:24
 ## 第五讲 开始写游戏框架 18:59
 ## 第六讲 网络传输层逻辑 part 1 48:23
 ## 第七讲 网络传输层逻辑 part 2 16:05
